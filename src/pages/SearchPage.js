@@ -8,7 +8,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { FaHome, FaUsers, FaBullhorn, FaBan, FaCalendarAlt } from "react-icons/fa";
 import Select from "react-select";
-
+import { useNavigate } from "react-router-dom";
 
 
 const SearchPage = () => {
@@ -22,16 +22,30 @@ const SearchPage = () => {
   const [listingType, setListingType] = useState("");
 
 
-  const neighborhoods = [
-    { value: "florentin", label: "פלורנטין" },
-    { value: "neve_tzedek", label: "נוה צדק" },
-    { value: "rothschild", label: "רוטשילד" },
-    { value: "old_north", label: "הצפון הישן" },
-    { value: "yad_eliayhu", label: "יד אליהו" },
-    { value: "ramat_aviv", label: "רמת אביב" },
-    { value: "hatikva", label: "התקווה" },
+  // const neighborhoods = [
+  //   { value: "florentin", label: "פלורנטין" },
+  //   { value: "neve_tzedek", label: "נוה צדק" },
+  //   { value: "rothschild", label: "רוטשילד" },
+  //   { value: "old_north", label: "הצפון הישן" },
+  //   { value: "yad_eliayhu", label: "יד אליהו" },
+  //   { value: "ramat_aviv", label: "רמת אביב" },
+  //   { value: "hatikva", label: "התקווה" },
+  //   { value: "Jaffa", label: "יפו" },
+
     // תוסיפי כמה שתרצי
+  // ];
+
+  const neighborhoods = [
+    { value: "פלורנטין", label: "פלורנטין" },
+    { value: "נוה צדק", label: "נוה צדק" },
+    { value: "רוטשילד", label: "רוטשילד" },
+    { value: "הצפון הישן", label: "הצפון הישן" },
+    { value: "יד אליהו", label: "יד אליהו" },
+    { value: "רמת אביב", label: "רמת אביב" },
+    { value: "התקווה", label: "התקווה" },
+    { value: "יפו", label: "יפו" },
   ];
+  
 
   const roomOptions = [
     { value: 1, label: "1" },
@@ -80,6 +94,23 @@ const SearchPage = () => {
       console.error("Error saving data:", error);
     }
   }; */
+
+  const navigate = useNavigate();
+
+  const handleSearch = () => {
+    const searchData = {
+      neighborhood: selectedNeighborhood,
+      priceMax,
+      rooms: selectedRooms,
+      entryDate,
+      apartmentMode,
+      listingType,
+      features: selectedFeatures,
+    };
+    console.log("🔎 searchData from SearchPage:", searchData);
+    navigate("/results", { state: { searchData } });
+  };
+
 
   return (
     <Layout>
@@ -253,7 +284,8 @@ const SearchPage = () => {
           </div>
 
           <button
-            //onClick={handleSubmit}
+            // onClick={handleSubmit}
+            onClick = {handleSearch}
             className="w-full bg-blue-600 text-white py-2 rounded mt-4"
           >
             הצג תוצאות
