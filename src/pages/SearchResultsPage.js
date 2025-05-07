@@ -3,6 +3,8 @@
 import React, { useEffect, useState } from "react";
 import Layout from "../components/Layout";
 import { useLocation } from "react-router-dom";
+import Slider from "react-slick";
+import ImageCarousel from "../components/ImageCarousel";
 
 
 //--------------למחוק כשנחבר 
@@ -11,7 +13,11 @@ const fakeResults = [
     title: "הזדמנות לגור בדירה חלומית",
     description:
       "הזדמנות לגור בדירה חלומית בתל אביב! מיקום: רחוב בן שפרוט היוקרתי. גודל: 90 מ״ר + מרפסת. 2 חדרי שינה וסלון מרווח.",
-    imageUrl: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80",
+    imageUrls: [
+      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1599423300746-b62533397364?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=800&q=80"
+    ],
     price: 7500,
     address: "רחוב בן שפרוט היוקרתי",
     neighborhood: "פלורנטין",
@@ -24,7 +30,7 @@ const fakeResults = [
     title: "דירת בוטיק עם נוף לים",
     description:
       "3 חדרים, קומה גבוהה עם נוף פתוח לים. מרפסת שמש, מעלית, חניה בטאבו. קרובה לים ולשוק הפשפשים.",
-    imageUrl: "https://images.unsplash.com/photo-1599423300746-b62533397364?auto=format&fit=crop&w=800&q=80",
+    imageUrls: ["https://images.unsplash.com/photo-1599423300746-b62533397364?auto=format&fit=crop&w=800&q=80"],
     price: 8200,
     address: "רחוב יהודה הימית",
     neighborhood: "יפו",
@@ -37,7 +43,7 @@ const fakeResults = [
     title: "דירה עם שותפים בלב פלורנטין",
     description:
       "4 חדרים, מרוהטת, כוללת מזגן, אינטרנט וארנונה. מתאימה לצעירים. נוף אורבני, אזור חי ותוסס.",
-    imageUrl: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80",
+    imageUrls: ["https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80"],
     price: 4700,
     address: "רחוב ויטל",
     neighborhood: "פלורנטין",
@@ -62,7 +68,7 @@ const filterResults = (results, filters) => {
   return results.filter((apt) => {
     // שכונה
     if (filters.neighborhood && filters.neighborhood !== "" &&
-        apt.neighborhood?.toLowerCase() !== filters.neighborhood.toLowerCase()) {
+      apt.neighborhood?.toLowerCase() !== filters.neighborhood.toLowerCase()) {
       return false;
     }
 
@@ -135,15 +141,32 @@ const SearchResultsPage = () => {
           {results.length > 0 ? (
             results.map((apartment, idx) => (
               <div key={idx} className="bg-white rounded-2xl shadow p-4">
-                <img
-                  src={apartment.imageUrl}
-                  alt="תמונה של דירה"
-                  className="rounded-xl w-full h-52 object-cover mb-3"
-                />
+                {apartment.images && apartment.images.length > 0 ? (
+                  <Slider dots arrows rtl>
+                    {apartment.images.map((imgUrl, i) => (
+                      <div key={i}>
+                        <img
+                          src={imgUrl}
+                          alt={`תמונה ${i + 1}`}
+                          className="rounded-xl w-full h-52 object-cover"
+                        />
+                      </div>
+                    ))}
+                  </Slider>
+                ) : (
+                  <ImageCarousel imageUrls={apartment.imageUrls} />
+                  // <img
+                  //   src={apartment.imageUrl || "https://via.placeholder.com/400x250"}
+                  //   alt="תמונה של דירה"
+                  //   className="rounded-xl w-full h-52 object-cover mb-3"
+                  // />
+                )}
+
                 <h2 className="text-xl font-semibold mb-1 text-right">{apartment.title}</h2>
                 <p className="text-right text-gray-600 text-sm mb-2">{apartment.description}</p>
                 <p className="text-right text-blue-600 font-bold">{apartment.price.toLocaleString()} ₪</p>
               </div>
+
             ))
           ) : (
             <p className="text-right col-span-full text-gray-600">לא נמצאו תוצאות</p>

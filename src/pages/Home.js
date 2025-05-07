@@ -48,7 +48,7 @@ const Home = () => {
                 <h4 className="text-xl font-bold mb-2">דירה מעוצבת ב{idx % 2 === 0 ? 'מרכז' : 'צפון'} תל אביב</h4>
                 <p className="text-gray-600 mb-3">3 חדרים, 4,200 ₪, קרובה לים, עם מרפסת ושקטה.</p>
               </div>
-              <button className="mt-2 bg-blue-500 hover:bg-blue-700 text-white rounded-lg px-4 py-2 font-semibold">
+              <button className="mt-2 bg-brandBlue hover:bg-blue-700 text-white rounded-lg px-4 py-2 font-semibold">
                 לצפייה בפרטים
               </button>
             </div>
