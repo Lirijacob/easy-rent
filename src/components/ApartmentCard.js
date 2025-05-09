@@ -1,50 +1,42 @@
 import React from "react";
-import { FaHeart, FaRegHeart, FaStar } from "react-icons/fa";
-import { useFavorites } from "../context/FavoritesContext";
+import { useNavigate } from "react-router-dom";
+import { FaHeart, FaRegHeart } from "react-icons/fa";
+import ImageCarousel from "./ImageCarousel";
 
-const ApartmentCard = ({ apartment }) => {
-  const { favorites, toggleFavorite } = useFavorites();
-  const isFavorite = favorites.some((fav) => fav.id === apartment.id);
+export default function ApartmentCard({ apartment, isFavorite, onToggleFavorite }) {
+  const navigate = useNavigate();
 
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden relative text-right">
-      <img
-        src={apartment.image}
-        alt="apartment"
-        className="w-full h-52 object-cover"
-      />
-
-      <button
-        onClick={() => toggleFavorite(apartment)}
-        className="absolute top-3 right-3 text-white text-lg"
-      >
+    <div className="bg-white rounded-xl shadow p-4 relative flex flex-col">
+      {/* כפתור לב בפינה שמאלית עליונה */}
+      <div className="absolute top-3 left-3 z-10 text-red-500 text-xl cursor-pointer">
         {isFavorite ? (
-          <FaHeart className="text-red-500" />
+          <FaHeart onClick={() => onToggleFavorite(apartment.id)} />
         ) : (
-          <FaRegHeart className="text-white drop-shadow" />
+          <FaRegHeart onClick={() => onToggleFavorite(apartment.id)} />
         )}
-      </button>
-
-      <div className="p-4 space-y-1">
-        <div className="flex items-center justify-between">
-          <span className="font-semibold">{apartment.location}</span>
-          <div className="flex items-center gap-1 text-sm text-gray-500">
-            <FaStar className="text-yellow-500" />
-            <span>{apartment.rating}</span>
-          </div>
-        </div>
-        <div className="text-gray-600 text-sm">
-          {apartment.rooms} חדרים
-        </div>
-        <div className="text-gray-600 text-sm">
-          כניסה {apartment.entry}
-        </div>
-        <div className="text-black text-sm font-semibold">
-          ₪{apartment.price.toLocaleString()} / לחודש
-        </div>
       </div>
+
+      {/* תמונות */}
+      <ImageCarousel imageUrls={apartment.images || []} />
+
+      {/* פרטים */}
+      <h4 className="text-xl font-bold mb-1">{apartment.title || "ללא כותרת"}</h4>
+      <p className="text-gray-600 text-sm mb-3">
+        {apartment.description ? apartment.description.slice(0, 80) + "..." : "אין תיאור זמין."}
+      </p>
+      <p className="text-gray-500 text-sm">
+        חדרים: {apartment.rooms ?? "לא צוין"} · 
+        מחיר: {apartment.price != null ? `₪${apartment.price}` : "לא צוין"}
+      </p>
+
+      {/* כפתור לצפייה בדירה */}
+      <button
+        onClick={() => navigate(`/apartment/${apartment.id}`)}
+        className="mt-3 bg-brandBlue hover:bg-blue-700 text-white rounded-lg px-4 py-2 font-semibold"
+      >
+        לצפייה בפרטים
+      </button>
     </div>
   );
-};
-
-export default ApartmentCard;
+}
