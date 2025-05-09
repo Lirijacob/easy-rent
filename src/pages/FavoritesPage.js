@@ -1,68 +1,83 @@
-// FavoritesPage.js
-import React from "react";
-import { FaHeart } from "react-icons/fa";
+import React, { useEffect, useState } from "react";
+import { collection, getDocs, doc, getDoc, updateDoc, arrayRemove } from "firebase/firestore";
+import { auth, db } from "../firebase";
+import { onAuthStateChanged } from "firebase/auth";
 import Layout from "../components/Layout";
-
-const favorites = [
-  {
-    id: 1,
-    image:
-      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80",
-    location: "פלורנטין",
-    rating: 4.9,
-    rooms: 3,
-    entry: "כניסה מיידית",
-    price: 6500,
-  },
-  {
-    id: 2,
-    image:
-      "https://images.unsplash.com/photo-1599423300746-b62533397364?auto=format&fit=crop&w=800&q=80",
-    location: "פלורנטין",
-    rating: 4.9,
-    rooms: 3,
-    entry: "כניסה מיידית",
-    price: 6500,
-  },
-];
+import ApartmentCard from "../components/ApartmentCard";
 
 const FavoritesPage = () => {
+  const [favorites, setFavorites] = useState([]);
+  const [apartments, setApartments] = useState([]);
+  const [userId, setUserId] = useState(null);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        setUserId(user.uid);
+        const userRef = doc(db, "users", user.uid);
+        const userSnap = await getDoc(userRef);
+        const userData = userSnap.data();
+        if (userData?.favorites) {
+          setFavorites(userData.favorites);
+        }
+      }
+    });
+    return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    const fetchFavorites = async () => {
+      if (favorites.length === 0) {
+        setApartments([]);
+        return;
+      }
+
+      const snapshot = await getDocs(collection(db, "posts"));
+      const allApts = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+        images: doc.data().images || [],
+      }));
+      const filtered = allApts.filter(apt => favorites.includes(apt.id));
+      setApartments(filtered);
+    };
+
+    fetchFavorites();
+  }, [favorites]);
+
+  const toggleFavorite = async (postId) => {
+    if (!userId) return;
+    const userRef = doc(db, "users", userId);
+    try {
+      await updateDoc(userRef, {
+        favorites: arrayRemove(postId),
+      });
+      setFavorites(prev => prev.filter(id => id !== postId));
+    } catch (error) {
+      console.error("שגיאה בעדכון מועדפים:", error);
+    }
+  };
+
   return (
     <Layout>
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white px-4 py-8 sm:px-6 md:px-10 lg:px-16 xl:px-32 2xl:px-48">
-      <h1 className="text-2xl font-bold text-right mb-1">דירות שאהבתי <FaHeart className="inline text-red-500" /></h1>
-      <p className="text-right text-sm text-gray-500 mb-6">
-        {favorites.length} דירות שמורות במועדפים
-      </p>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {favorites.map((fav) => (
-          <div
-            key={fav.id}
-            className="bg-white shadow rounded-lg overflow-hidden relative"
-          >
-            <img
-              src={fav.image}
-              alt="apartment"
-              className="w-full h-56 object-cover"
-            />
-            <button className="absolute top-2 left-2 bg-white rounded-full p-1 shadow">
-              <FaHeart className="text-red-500" />
-            </button>
-            <div className="p-4 text-right">
-              <div className="text-lg font-semibold">{fav.location}</div>
-              <div className="text-sm text-gray-600">{fav.rooms} חדרים</div>
-              <div className="text-sm text-gray-600">{fav.entry}</div>
-              <div className="text-sm text-gray-800">
-                <span className="font-bold">₪{fav.price.toLocaleString()}</span> / לחודש
-              </div>
-            </div>
+      <div className="max-w-6xl mx-auto py-8 px-4">
+        <h2 className="text-2xl font-bold mb-6 text-right">❤️ דירות שאהבתי</h2>
+        {apartments.length === 0 ? (
+          <p className="text-center text-gray-600">לא סומנו דירות אהובות עדיין.</p>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {apartments.map((apartment) => (
+              <ApartmentCard
+                key={apartment.id}
+                apartment={apartment}
+                isFavorite={favorites.includes(apartment.id)}
+                onToggleFavorite={toggleFavorite}
+              />
+            ))}
           </div>
-        ))}
+        )}
       </div>
-    </div>
     </Layout>
-
   );
 };
 

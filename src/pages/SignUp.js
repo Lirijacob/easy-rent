@@ -24,6 +24,7 @@ export default function SignUp() {
       await setDoc(doc(db, "users", user.uid), {
         email: user.email,
         createdAt: new Date().toISOString(),
+        favorites: []
       });
 
       // מעבר למסך אחר (למשל עמוד הבית או תוצאות)

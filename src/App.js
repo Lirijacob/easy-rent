@@ -6,6 +6,7 @@ import SignUp from "./pages/SignUp";
 import SearchPage from "./pages/SearchPage";
 import Home from "./pages/Home";
 import FavoritesPage from "./pages/FavoritesPage";
+import ApartmentPage from "./pages/ApartmentPage";
 import SearchResultsPage from "./pages/SearchResultsPage";
 
 function App() {
@@ -20,6 +21,7 @@ function App() {
         <Route path="/search" element={<SearchPage />} />
         <Route path="/favorites" element={<FavoritesPage />} />
         <Route path="/home" element={<Home />} />
+        <Route path="/apartment/:id" element={<ApartmentPage />} />
         <Route path="/results" element={<SearchResultsPage />} />
 
         <Route path="*" element={<Navigate to="/login" replace />} />
