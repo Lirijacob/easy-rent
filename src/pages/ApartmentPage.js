@@ -1,18 +1,21 @@
+// ApartmentPage.js
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { doc, getDoc, updateDoc, arrayUnion, arrayRemove } from "firebase/firestore";
-import { getDownloadURL, getStorage, ref } from "firebase/storage";
 import { db, auth } from "../firebase";
 import { onAuthStateChanged } from "firebase/auth";
-import { FaHeart, FaRegHeart } from "react-icons/fa";
 import Header from "../components/Header";
+import GalleryGrid from "../components/NewGalleryPreview";
+import ImageModal from "../components/ImageModal";
+import { FaCheckCircle, FaTimesCircle } from "react-icons/fa";
 
 export default function ApartmentPage() {
   const { id } = useParams();
   const [apartment, setApartment] = useState(null);
-  const [imageUrls, setImageUrls] = useState([]);
   const [favorites, setFavorites] = useState([]);
   const [userId, setUserId] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(null);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -30,27 +33,11 @@ export default function ApartmentPage() {
   useEffect(() => {
     const fetchApartment = async () => {
       try {
-        const docRef = doc(db, "posts", id);
+        const docRef = doc(db, "apartments", id);
         const docSnap = await getDoc(docRef);
 
         if (docSnap.exists()) {
-          const data = docSnap.data();
-          setApartment(data);
-
-          if (data.images && Array.isArray(data.images)) {
-            const storage = getStorage();
-            const urls = await Promise.all(
-              data.images.map(async (path) => {
-                try {
-                  const url = await getDownloadURL(ref(storage, path));
-                  return url;
-                } catch {
-                  return null;
-                }
-              })
-            );
-            setImageUrls(urls.filter(Boolean));
-          }
+          setApartment({ id: docSnap.id, ...docSnap.data() });
         } else {
           console.log("הדירה לא נמצאה");
         }
@@ -79,56 +66,96 @@ export default function ApartmentPage() {
     }
   };
 
+  const renderFeature = (label, value) => {
+    if (value === undefined || value === null) {
+      return <div><strong>{label}:</strong> לא צוין</div>;
+    }
+    return (
+      <div>
+        <strong>{label}:</strong>{" "}
+        {value ? (
+          <FaCheckCircle className="inline text-green-500" />
+        ) : (
+          <><FaTimesCircle className="inline text-gray-400" /> לא</>
+        )}
+      </div>
+    );
+  };
+
   if (!apartment) {
     return <div className="text-center p-8">טוען מידע על הדירה...</div>;
   }
 
   return (
-    <div className="bg-blue-50 min-h-screen">
+    <div className="bg-white min-h-screen">
       <Header />
-      <div className="max-w-4xl mx-auto p-6">
-        <div className="relative mb-4">
-          {imageUrls.length > 0 ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-              {imageUrls.map((url, i) => (
-                <img key={i} src={url} alt={`תמונה ${i + 1}`} className="rounded shadow object-cover" />
-              ))}
-            </div>
-          ) : (
-            <div className="bg-gray-200 h-48 rounded mb-4" />
-          )}
+      <div className="max-w-5xl mx-auto p-6">
+        {/* גלריית תמונות */}
+        <GalleryGrid
+          images={apartment.images || []}
+          onImageClick={(index) => {
+            setCurrentImageIndex(index);
+            setIsModalOpen(true);
+          }}
+        />
 
-          {/* כפתור לב על התמונה */}
-          <div className="absolute top-2 left-2 z-10 text-red-500 text-2xl cursor-pointer">
-            {favorites.includes(id) ? (
-              <FaHeart onClick={toggleFavorite} />
-            ) : (
-              <FaRegHeart onClick={toggleFavorite} />
-            )}
+        {/* מודאל תמונה */}
+        {isModalOpen && currentImageIndex !== null && (
+          <ImageModal
+            images={apartment.images}
+            currentIndex={currentImageIndex}
+            onClose={() => {
+              setIsModalOpen(false);
+              setCurrentImageIndex(null);
+            }}
+            onNext={() =>
+              setCurrentImageIndex((prev) => (prev + 1) % apartment.images.length)
+            }
+            onPrev={() =>
+              setCurrentImageIndex((prev) => (prev - 1 + apartment.images.length) % apartment.images.length)
+            }
+          />
+        )}
+
+        {/* כותרת */}
+        <h1 className="text-3xl font-bold my-4 text-gray-900">{apartment.title || "דירה ללא שם"}</h1>
+
+        {/* פרטים */}
+        <div className="bg-gray-50 rounded-2xl shadow p-6 grid grid-cols-1 md:grid-cols-2 gap-6 text-gray-800 text-sm">
+          <div><strong>כתובת:</strong> {apartment.address || "לא צוין"}</div>
+          <div><strong>שכונה:</strong> {apartment.neighborhood || "לא צוין"}</div>
+          <div><strong>מחיר:</strong> {apartment.price ? `₪${apartment.price.toLocaleString()}` : "לא צוין"}</div>
+          <div><strong>מספר חדרים:</strong> {apartment.rooms || "לא צוין"}</div>
+          <div><strong>תאריך כניסה:</strong> {apartment.available_from || "לא צוין"}</div>
+          <div><strong>קומה:</strong> {apartment.floor || "לא צוין"}</div>
+          <div><strong>שטח:</strong> {apartment.size || "לא צוין"} מ"ר</div>
+
+          {renderFeature("מרפסת", apartment.has_balcony)}
+          {renderFeature("ממ\u201dד", apartment.has_safe_room)}
+          {renderFeature("חיות מחמד", apartment.pets_allowed)}
+          {renderFeature("חניה", apartment.has_parking)}
+          {renderFeature("מעלית", apartment.has_elevator)}
+          {renderFeature("מתווך", apartment.has_broker)}
+        </div>
+
+        {/* כפתור מעבר לפייסבוק */}
+        {apartment.facebook_url && (
+          <div className="mt-6">
+            <a
+              href={apartment.facebook_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block bg-blue-600 text-white font-medium px-6 py-2 rounded-lg hover:bg-blue-700 transition"
+            >
+              מעבר לפוסט בפייסבוק
+            </a>
           </div>
-        </div>
+        )}
 
-        <h1 className="text-2xl font-bold mb-2 text-right">{apartment.title || "דירה ללא שם"}</h1>
-        <p className="text-gray-700 text-right mb-4">{apartment.description || "אין תיאור זמין."}</p>
-
-        {/* פרטי הדירה */}
-        <div className="bg-white rounded-lg shadow p-4 space-y-2 text-right text-gray-800 text-sm">
-          <p><strong>כתובת:</strong> {apartment.address || "לא צוין"}</p>
-          <p><strong>שכונה:</strong> {apartment.neighborhood || "לא צוין"}</p>
-          <p><strong>מחיר:</strong> {apartment.price ? `₪${apartment.price.toLocaleString()}` : "לא צוין"}</p>
-          <p><strong>מספר חדרים:</strong> {apartment.rooms || "לא צוין"}</p>
-          <p><strong>תאריך כניסה:</strong> {apartment.available_from || "לא צוין"}</p>
-          <p><strong>קומה:</strong> {apartment.floor || "לא צוין"}</p>
-          <p><strong>שטח:</strong> {apartment.size || "לא צוין"} מ"ר</p>
-
-          {/* מאפיינים בוליאניים */}
-          <p><strong>מרפסת:</strong> {apartment.has_balcony ? "✓" : "לא צוין"}</p>
-          <p><strong>ממ״ד:</strong> {apartment.has_safe_room ? "✓" : "לא צוין"}</p>
-          <p><strong>חיות מחמד:</strong> {apartment.pets_allowed ? "✓" : "לא צוין"}</p>
-          <p><strong>חניה:</strong> {apartment.has_parking ? "✓" : "לא צוין"}</p>
-          <p><strong>מעלית:</strong> {apartment.has_elevator ? "✓" : "לא צוין"}</p>
-          <p><strong>מתווך:</strong> {apartment.has_broker ? "✓" : "לא צוין"}</p>
-        </div>
+        {/* תיאור */}
+        <p className="text-gray-600 mt-10 leading-relaxed whitespace-pre-line">
+          {(apartment.description || "אין תיאור זמין").replace(/\\n/g, '\n')}
+        </p>
       </div>
     </div>
   );

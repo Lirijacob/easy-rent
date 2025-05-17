@@ -32,27 +32,31 @@ const Home = () => {
   }, []);
 
   useEffect(() => {
-    const fetchApartments = async () => {
-      try {
-        const snapshot = await getDocs(collection(db, "posts"));
-        const data = snapshot.docs.map((doc) => {
-          const apt = doc.data();
-          return {
-            id: doc.id,
-            title: apt.title || "",
-            description: apt.description || "",
-            price: apt.price,
-            rooms: apt.rooms,
-            images: apt.images || placeholderImages,
-          };
-        });
-        setApartments(data);
-      } catch (err) {
-        console.error("שגיאה בשליפת דירות:", err);
-      }
-    };
-    fetchApartments();
-  }, []);
+  const fetchApartments = async () => {
+    try {
+      const snapshot = await getDocs(collection(db, "apartments"));  // ← שם הקולקציה החדש
+      const data = snapshot.docs.map((doc) => {
+        const apt = doc.data();
+        return {
+          id: doc.id,
+          title: apt.title || "",
+          description: apt.description || "",
+          price: apt.price,
+          rooms: apt.rooms,
+          size: apt.size,
+          images: apt.images && Array.isArray(apt.images) && apt.images.length > 0
+            ? apt.images
+            : placeholderImages,
+        };
+      });
+      setApartments(data);
+    } catch (err) {
+      console.error("שגיאה בשליפת דירות:", err);
+    }
+  };
+  fetchApartments();
+}, []);
+
 
   const toggleFavorite = async (postId) => {
     if (!userId) return;
@@ -72,20 +76,20 @@ const Home = () => {
 
   return (
     <Layout>
-      <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
+      <div className="min-h-screen bg-white font-sans text-brandText">
         {/* חיפוש */}
-        <section className="max-w-3xl mx-auto text-center my-8">
-          <h2 className="text-4xl font-bold text-gray-800 mb-4">
-            מצאו דירה להשכרה בתל אביב בקלות!
+        <section className="max-w-4xl mx-auto text-center my-16">
+          <h2 className="text-5xl font-bold text-gray-900 mb-4 leading-tight">
+            מצאו דירה להשכרה בתל אביב
           </h2>
-          <p className="text-lg text-gray-600 mb-6">
-            חפשו, סננו ושמרו דירות שפורסמו בפייסבוק – ביעילות!
+          <p className="text-lg text-gray-500 mb-10">
+            חפשו, השוו ושמרו דירות שפורסמו בפייסבוק – בקלות ובנוחות.
           </p>
           <div
             onClick={() => navigate("/search")}
-            className="cursor-pointer bg-white hover:bg-gray-200 transition rounded-full shadow max-w-xl mx-auto px-6 py-3 flex items-center justify-center"
+            className="cursor-pointer bg-gray-100 hover:bg-gray-200 transition rounded-full shadow-md max-w-md mx-auto px-8 py-4 flex items-center justify-center"
           >
-            <span className="text-gray-800 font-medium ml-2">
+            <span className="text-gray-700 font-medium ml-2">
               חפש את הדירה שלך
             </span>
             <FaSearch className="text-gray-500" />
@@ -93,9 +97,8 @@ const Home = () => {
         </section>
 
         {/* דירות חדשות */}
-        <section className="max-w-6xl mx-auto py-8 px-4">
-          <h3 className="text-2xl font-semibold mb-5 text-right">דירות חדשות:</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <section className="max-w-7xl mx-auto py-14 px-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
             {apartments.map((apartment) => (
               <ApartmentCard
                 key={apartment.id}

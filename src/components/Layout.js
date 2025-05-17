@@ -1,12 +1,10 @@
-// components/Layout.js
-import React from "react";
 import Header from "./Header";
 
 export default function Layout({ children }) {
   return (
-    <div className="min-h-screen bg-blue-50">
+    <div className="min-h-screen bg-white font-sans text-brandText">
       <Header />
-      <main className="mt-16 px-4">{children}</main>
+      <main className="mt-20 px-6 max-w-screen-xl mx-auto">{children}</main>
     </div>
   );
 }

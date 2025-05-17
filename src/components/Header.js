@@ -2,9 +2,9 @@ import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { signOut } from "firebase/auth";
 import { auth } from "../firebase";
-import logo from "../assets/EasyRentLogo.jpg";
+import logo from "../assets/EasyRentLogo.png";
 import { RxExit } from "react-icons/rx";
-
+import { FaHeart, FaSearch } from "react-icons/fa";
 
 function Header() {
   const navigate = useNavigate();
@@ -19,31 +19,26 @@ function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-50 bg-white border-b flex items-center justify-between px-5 py-2 shadow-sm">
-      {/* Logo */}
-      <Link to="/home">
-        <img src={logo} alt="EasyRent" className="h-16" />
-      </Link>
+    <header className="sticky top-0 z-50 bg-[#f7f7f7] border-b shadow-sm flex items-center justify-between px-8 py-4">
+  <Link to="/home" className="flex items-center gap-2">
+    <img src={logo} alt="EasyRent" className="h-20" />
+  </Link>
 
-      {/* Navigation buttons */}
-      <nav className="flex gap-3 items-center font-semibold">
-        <Link
-          to="/search"
-          className="bg-blue-100 text-blue-800 px-4 py-2 rounded-full hover:bg-blue-200 transition flex items-center gap-1"
-        >
-          🔍 <span>חיפוש</span>
+      {/* ניווט */}
+      <nav className="flex items-center gap-8 text-gray-700 font-medium text-base">
+        <Link to="/search" className="hover:text-gray-900 flex items-center gap-1">
+          <FaSearch className="text-lg" />
+          <span>חיפוש</span>
         </Link>
-        <Link
-          to="/favorites"
-          className="bg-blue-100 text-blue-800 px-4 py-2 rounded-full hover:bg-blue-200 transition flex items-center gap-1"
-        >
-          ❤️ <span>דירות שאהבתי</span>
+        <Link to="/favorites" className="hover:text-gray-900 flex items-center gap-1">
+          <FaHeart className="text-lg" />
+          <span>דירות שאהבתי</span>
         </Link>
         <button
           onClick={handleLogout}
-          className="bg-blue-100 text-blue-800 px-4 py-2 rounded-full hover:bg-blue-200 transition flex items-center gap-1"
+          className="hover:text-gray-900 flex items-center gap-1"
         >
-          <RxExit className="text-lg" /> 
+          <RxExit className="text-lg" />
           <span>התנתק</span>
         </button>
       </nav>

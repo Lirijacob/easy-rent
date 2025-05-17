@@ -1,92 +1,64 @@
-// components/ImageCarousel.js
-import React from "react";
-import Slider from "react-slick";
-import { FaChevronRight, FaChevronLeft } from "react-icons/fa";
-import "slick-carousel/slick/slick.css";
-import "slick-carousel/slick/slick-theme.css";
+import React, { useState } from "react";
+import { FaHeart, FaRegHeart, FaChevronLeft, FaChevronRight } from "react-icons/fa";
 
-const ArrowLeft = (props) => (
-    <div
-        className="absolute top-1/2 left-2 transform -translate-y-1/2 z-10 cursor-pointer bg-white rounded-full shadow p-2"
-        onClick={props.onClick}
-    >
-        <FaChevronLeft className="text-gray-700" />
-    </div>
-);
+const placeholderImage = "https://via.placeholder.com/800x600?text=No+Image";
 
-const ArrowRight = (props) => (
-    <div
-        className="absolute top-1/2 right-2 transform -translate-y-1/2 z-10 cursor-pointer bg-white rounded-full shadow p-2"
-        onClick={props.onClick}
-    >
-        <FaChevronRight className="text-gray-700" />
-    </div>
-);
+export default function ImageCarousel({ imageUrls = [], isFavorite = false, onToggleFavorite, height = "h-80" }) {
+  const [currentIndex, setCurrentIndex] = useState(0);
 
-const ImageCarousel = ({ imageUrls }) => {
-    // אם אין בכלל תמונות
-    if (!imageUrls) return null;
+  const totalImages = imageUrls.length || 1;
 
-    // אם זו מחרוזת אחת – תהפוך למערך
-    if (typeof imageUrls === "string") {
-        imageUrls = [imageUrls];
-    }
+  const nextImage = () => {
+    setCurrentIndex((currentIndex + 1) % totalImages);
+  };
 
-    // אם רק תמונה אחת – אל תשתמש ב־Slider
-    if (imageUrls.length === 1) {
-        return (
-            <img
-                src={imageUrls[0]}
-                alt="תמונה"
-                className="rounded-xl w-full h-52 object-cover mb-3"
-            />
-        );
-    }
+  const prevImage = () => {
+    setCurrentIndex((currentIndex - 1 + totalImages) % totalImages);
+  };
 
-    const settings = {
-        dots: true,
-        infinite: true,
-        speed: 500,
-        slidesToShow: 1,
-        slidesToScroll: 1,
-        arrows: true,
-        rtl: true,
-        nextArrow: <ArrowRight />,
-        prevArrow: <ArrowLeft />,
-        // appendDots: dots => (
-        //     <div className="mt-2">
-        //         <ul className="bottom-8 flex justify-center space-x-2 rtl:space-x-reverse">{dots}</ul>
-        //     </div>
-        // ),
-        // appendDots: dots => (
-        //     <div className="absolute bottom-0 w-full flex justify-center z-10 pb-2">
-        //         <ul className="flex gap-2">{dots}</ul>
-        //     </div>
-        // ),
-        customPaging: i => (
-            <div className="w-2.5 h-2.5 bg-gray-400 rounded-full"></div>
-        )
-    };
+  return (
+    <div className={`relative w-full ${height} rounded-2xl overflow-hidden`}>
+      {/* תמונה נוכחית */}
+      <img
+        src={imageUrls[currentIndex] || placeholderImage}
+        alt={`תמונה ${currentIndex + 1}`}
+        className="w-full h-full object-cover"
+      />
 
-    return (
-        <div className="relative">
-            <div className="relative h-52 overflow-hidden rounded-xl">
-                <Slider {...settings}>
-                    {imageUrls.map((url, i) => (
-                        <div key={i}>
-                            <img
-                                src={url}
-                                alt={`תמונה ${i + 1}`}
-                                className="w-full h-52 object-cover"
-                            />
-                        </div>
-                    ))}
-                </Slider>
-            </div>
+      {/* כפתור לב */}
+      {onToggleFavorite && (
+        <div
+          className="absolute top-3 left-3 z-10 bg-white bg-opacity-70 rounded-full p-2 cursor-pointer"
+          onClick={(e) => { e.stopPropagation(); onToggleFavorite(); }}
+        >
+          {isFavorite ? <FaHeart className="text-red-500 text-xl" /> : <FaRegHeart className="text-red-500 text-xl" />}
         </div>
+      )}
 
+      {/* חצים */}
+      {totalImages > 1 && (
+        <>
+          <button
+            onClick={(e) => { e.stopPropagation(); prevImage(); }}
+            className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-70 rounded-full p-2"
+          >
+            <FaChevronLeft />
+          </button>
+          <button
+            onClick={(e) => { e.stopPropagation(); nextImage(); }}
+            className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-70 rounded-full p-2"
+          >
+            <FaChevronRight />
+          </button>
+        </>
+      )}
 
-    );
-};
-
-export default ImageCarousel;
+      {/* מונה תמונות */}
+      {totalImages > 1 && (
+        <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2 bg-black bg-opacity-50 text-white text-xs px-3 py-1 rounded-full">
+          {currentIndex + 1}/{totalImages}
+        </div>
+      )}
+    </div>
+  );
+}

@@ -7,36 +7,38 @@ export default function ApartmentCard({ apartment, isFavorite, onToggleFavorite 
   const navigate = useNavigate();
 
   return (
-    <div className="bg-white rounded-xl shadow p-4 relative flex flex-col">
-      {/* כפתור לב בפינה שמאלית עליונה */}
-      <div className="absolute top-3 left-3 z-10 text-red-500 text-xl cursor-pointer">
-        {isFavorite ? (
-          <FaHeart onClick={() => onToggleFavorite(apartment.id)} />
-        ) : (
-          <FaRegHeart onClick={() => onToggleFavorite(apartment.id)} />
-        )}
+    <div
+      onClick={() => navigate(`/apartment/${apartment.id}`)}
+      className="bg-white rounded-2xl shadow-soft overflow-hidden relative flex flex-col cursor-pointer transform transition-transform transition-shadow duration-300 hover:scale-105 hover:shadow-lg"
+    >
+      {/* כפתור לב */}
+      <div
+        onClick={(e) => {
+          e.stopPropagation();
+          onToggleFavorite(apartment.id);
+        }}
+        className="absolute top-4 left-4 z-10 text-red-500 text-2xl cursor-pointer bg-white rounded-full p-2 shadow-sm"
+      >
+        {isFavorite ? <FaHeart /> : <FaRegHeart />}
       </div>
 
-      {/* תמונות */}
+      {/* קרוסלת תמונות */}
       <ImageCarousel imageUrls={apartment.images || []} />
 
       {/* פרטים */}
-      <h4 className="text-xl font-bold mb-1">{apartment.title || "ללא כותרת"}</h4>
-      <p className="text-gray-600 text-sm mb-3">
-        {apartment.description ? apartment.description.slice(0, 80) + "..." : "אין תיאור זמין."}
-      </p>
-      <p className="text-gray-500 text-sm">
-        חדרים: {apartment.rooms ?? "לא צוין"} · 
-        מחיר: {apartment.price != null ? `₪${apartment.price}` : "לא צוין"}
-      </p>
+      <div className="p-5 flex flex-col flex-grow">
+        <h4 className="text-lg font-bold mb-1">{apartment.title || "ללא כותרת"}</h4>
 
-      {/* כפתור לצפייה בדירה */}
-      <button
-        onClick={() => navigate(`/apartment/${apartment.id}`)}
-        className="mt-3 bg-brandBlue hover:bg-blue-700 text-white rounded-lg px-4 py-2 font-semibold"
-      >
-        לצפייה בפרטים
-      </button>
+        <p className="text-gray-500 text-sm mb-4 leading-relaxed">
+          {apartment.description
+            ? apartment.description.replace(/\\n/g, " ").replace(/\n/g, " ").slice(0, 80) + "..."
+            : "אין תיאור זמין."}
+        </p>
+
+        <p className="text-gray-700 text-sm">
+          חדרים: {apartment.rooms ?? "לא צוין"} · מחיר: {apartment.price ? `${apartment.price} ש"ח` : "לא צוין"}
+        </p>
+      </div>
     </div>
   );
 }

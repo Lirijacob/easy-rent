@@ -32,7 +32,7 @@ const FavoritesPage = () => {
         return;
       }
 
-      const snapshot = await getDocs(collection(db, "posts"));
+      const snapshot = await getDocs(collection(db, "apartments"));
       const allApts = snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data(),

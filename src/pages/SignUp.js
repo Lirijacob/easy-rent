@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
 import { auth, db } from "../firebase";
-import Logo from "../assets/EasyRentLogo.jpg";
+import Logo from "../assets/EasyRentLogo.png";
 
 export default function SignUp() {
   const [email, setEmail] = useState("");
