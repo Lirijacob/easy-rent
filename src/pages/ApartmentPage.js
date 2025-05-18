@@ -5,7 +5,7 @@ import { doc, getDoc, updateDoc, arrayUnion, arrayRemove } from "firebase/firest
 import { db, auth } from "../firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import Header from "../components/Header";
-import GalleryGrid from "../components/NewGalleryPreview";
+import NewGalleryPreview from "../components/NewGalleryPreview";
 import ImageModal from "../components/ImageModal";
 import { FaCheckCircle, FaTimesCircle } from "react-icons/fa";
 
@@ -91,9 +91,10 @@ export default function ApartmentPage() {
       <Header />
       <div className="max-w-5xl mx-auto p-6">
         {/* גלריית תמונות */}
-        <GalleryGrid
+        <NewGalleryPreview
           images={apartment.images || []}
           onImageClick={(index) => {
+            console.log("נבחרה תמונה:", index);
             setCurrentImageIndex(index);
             setIsModalOpen(true);
           }}
@@ -102,6 +103,7 @@ export default function ApartmentPage() {
         {/* מודאל תמונה */}
         {isModalOpen && currentImageIndex !== null && (
           <ImageModal
+            isOpen={isModalOpen}
             images={apartment.images}
             currentIndex={currentImageIndex}
             onClose={() => {
@@ -129,7 +131,6 @@ export default function ApartmentPage() {
           <div><strong>תאריך כניסה:</strong> {apartment.available_from || "לא צוין"}</div>
           <div><strong>קומה:</strong> {apartment.floor || "לא צוין"}</div>
           <div><strong>שטח:</strong> {apartment.size || "לא צוין"} מ"ר</div>
-
           {renderFeature("מרפסת", apartment.has_balcony)}
           {renderFeature("ממ\u201dד", apartment.has_safe_room)}
           {renderFeature("חיות מחמד", apartment.pets_allowed)}

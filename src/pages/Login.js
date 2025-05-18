@@ -63,7 +63,7 @@ export default function Login() {
           {error && <p className="text-red-500 text-sm">{error}</p>}
           <button
             type="submit"
-            className="w-full bg-brandBlue  text-white py-2 rounded hover:bg-blue-700 transition"
+            className="bg-[#5171b7] text-white font-medium px-6 py-2 rounded-lg hover:bg-[#357ae8] transition"
           >
             התחברות
           </button>
@@ -71,7 +71,7 @@ export default function Login() {
         <p className="mt-4 text-center text-sm">
           אין לך חשבון?{" "}
           <span
-            className="text-brandBlue  hover:underline cursor-pointer"
+            className="text-blue-600 hover:underline cursor-pointer"
             onClick={() => navigate("/signup")}
           >
             להרשמה

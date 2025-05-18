@@ -73,7 +73,7 @@ export default function SignUp() {
           {error && <p className="text-red-500 text-sm">{error}</p>}
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
+            className="bg-[#5171b7] text-white font-medium px-6 py-2 rounded-lg hover:bg-[#357ae8] transition"
           >
             הרשמה
           </button>
