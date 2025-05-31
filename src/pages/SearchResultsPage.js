@@ -125,7 +125,7 @@ useEffect(() => {
         {results.length === 0 ? (
           <p className="text-right text-gray-600">לא נמצאו דירות מתאימות.</p>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
             {results.map((apartment) => (
               <ApartmentCard
                 key={apartment.id}

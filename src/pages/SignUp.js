@@ -31,13 +31,13 @@ export default function SignUp() {
       navigate("/home"); 
     } catch (err) {
       if (err.code === "auth/email-already-in-use") {
-        setError("כתובת האימייל כבר רשומה. נסי להתחבר.");
+        setError("כתובת האימייל כבר רשומה. נסה/י להתחבר");
       } else if (err.code === "auth/invalid-email") {
-        setError("כתובת אימייל לא תקינה.");
+        setError("כתובת אימייל לא תקינה");
       } else if (err.code === "auth/weak-password") {
-        setError("הסיסמה צריכה להכיל לפחות 6 תווים.");
+        setError("הסיסמה צריכה להכיל לפחות 6 תווים");
       } else {
-        setError("אירעה שגיאה. נסה שוב.");
+        setError("אירעה שגיאה. נסה/י שוב");
       }
     }
   };

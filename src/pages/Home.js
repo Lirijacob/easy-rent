@@ -46,8 +46,7 @@ const Home = () => {
           rooms: apt.rooms,
           size: apt.size,
           images: apt.images && Array.isArray(apt.images) && apt.images.length > 0
-            ? apt.images
-            : placeholderImages,
+            ? apt.images : placeholderImages,
         };
       });
       setApartments(data);
