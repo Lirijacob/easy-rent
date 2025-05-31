@@ -76,7 +76,7 @@ const SearchPage = () => {
         <div className="max-w-4xl mx-auto">
           <h1 className="text-3xl font-bold mb-6 text-right text-gray-800">חיפוש </h1>
 
-          {/* שכונה */}
+          {/* neighborhoods */}
           <div className="mb-6">
             <label className="block text-right font-semibold mb-2">שכונה</label>
             <Select
@@ -92,7 +92,7 @@ const SearchPage = () => {
             />
           </div>
 
-          {/* מחיר */}
+          {/* Price */}
           <div className="mb-6">
             <label className="block text-right font-semibold mb-2">טווח מחירים</label>
             <div className="flex justify-end mb-1 text-sm text-gray-700">₪{priceMax.toLocaleString()}</div>
@@ -107,7 +107,7 @@ const SearchPage = () => {
             />
           </div>
 
-          {/* חדרים */}
+          {/* Number of rooms */}
           <div className="mb-6">
             <label className="block text-right font-semibold mb-2">מספר חדרים</label>
             <Select
@@ -123,7 +123,7 @@ const SearchPage = () => {
             />
           </div>
 
-          {/* תאריך */}
+          {/* Entery Date */}
           <div className="mb-6">
             <label className="block text-right font-semibold mb-2">תאריך כניסה</label>
             <div className="relative">
@@ -141,7 +141,7 @@ const SearchPage = () => {
             </div>
           </div>
 
-          {/* מבנה הדירה */}
+          {/* Apartment type */}
           <div className="mb-8">
             <label className="block text-right font-semibold mb-3 text-lg">מבנה הדירה</label>
             <div className="flex justify-end gap-4 flex-row-reverse">
@@ -164,7 +164,7 @@ const SearchPage = () => {
             </div>
           </div>
 
-          {/* תוספים */}
+          {/* More features */}
           <div className="mb-10">
             <label className="block text-right font-semibold mb-2">מסנני חיפוש נוספים</label>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
@@ -177,7 +177,7 @@ const SearchPage = () => {
             </div>
           </div>
 
-          {/* כפתור */}
+          {/* Show Results button */}
           <button
             onClick={handleSearch}
             className="w-full bg-[#5171b7] hover:bg-[#3f5ea4] text-white text-lg py-3 rounded-xl shadow transition"

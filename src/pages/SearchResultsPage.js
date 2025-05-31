@@ -4,7 +4,11 @@ import Layout from "../components/Layout";
 import { useLocation } from "react-router-dom";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../firebase";
-import ApartmentCard from "../components/ApartmentCard"; // נשתמש בכרטיס דירה אחיד
+import ApartmentCard from "../components/ApartmentCard"; 
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "../firebase";
+import { doc, updateDoc, arrayUnion, arrayRemove } from "firebase/firestore";
+
 
 const mapFeature = {
   "חיות מחמד": "pets_allowed",
@@ -20,7 +24,23 @@ const SearchResultsPage = () => {
   const location = useLocation();
   const { searchData } = location.state || {};
   const [results, setResults] = useState([]);
-  const [favorites, setFavorites] = useState([]); // אופציונלי: עבור הלב
+  const [favorites, setFavorites] = useState([]); 
+  const [userId, setUserId] = useState(null);
+
+useEffect(() => {
+  const unsubscribe = onAuthStateChanged(auth, async (user) => {
+    if (user) {
+      setUserId(user.uid);
+      const userDoc = await getDocs(collection(db, "users"));
+      const currentUser = userDoc.docs.find(doc => doc.id === user.uid);
+      if (currentUser) {
+        setFavorites(currentUser.data().favorites || []);
+      }
+    }
+  });
+  return () => unsubscribe();
+}, []);
+
 
   useEffect(() => {
     if (searchData) {
@@ -34,26 +54,26 @@ const SearchResultsPage = () => {
       const allApartments = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 
       const filtered = allApartments.filter((apt) => {
-        // שכונה
+        // Neighborhood
         if (
           searchData.neighborhood &&
           apt.neighborhood?.toLowerCase() !== searchData.neighborhood.toLowerCase()
         ) return false;
 
-        // מחיר
+        // Price
         if (searchData.priceMax && apt.price > searchData.priceMax) return false;
 
-        // חדרים
+        // Rooms
         if (searchData.rooms && apt.rooms !== searchData.rooms) return false;
 
-        // תאריך כניסה
+        // Entry Date
         if (searchData.entryDate && apt.available_from) {
           const userDate = new Date(searchData.entryDate);
           const aptDate = new Date(apt.available_from);
           if (aptDate > userDate) return false;
         }
 
-        // מבנה הדירה
+        // Apartment Mode
         if (searchData.apartmentMode) {
           if (
             searchData.apartmentMode === "whole" && apt.property_type !== "apartment"
@@ -63,7 +83,7 @@ const SearchResultsPage = () => {
           ) return false;
         }
 
-        // תכונות
+        // Features
         if (searchData.features && searchData.features.length > 0) {
           for (let label of searchData.features) {
             const key = mapFeature[label];
@@ -80,6 +100,23 @@ const SearchResultsPage = () => {
     }
   };
 
+  const toggleFavorite = async (postId) => {
+  if (!userId) return;
+  const userRef = doc(db, "users", userId);
+  const isFavorite = favorites.includes(postId);
+  try {
+    await updateDoc(userRef, {
+      favorites: isFavorite ? arrayRemove(postId) : arrayUnion(postId),
+    });
+    setFavorites((prev) =>
+      isFavorite ? prev.filter((id) => id !== postId) : [...prev, postId]
+    );
+  } catch (error) {
+    console.error("שגיאה בעדכון מועדפים:", error);
+  }
+};
+
+
   return (
     <Layout>
       <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white px-6 py-8">
@@ -94,7 +131,7 @@ const SearchResultsPage = () => {
                 key={apartment.id}
                 apartment={apartment}
                 isFavorite={favorites.includes(apartment.id)}
-                onToggleFavorite={() => {}} // אפשרות לפיתוח
+                onToggleFavorite={() => toggleFavorite(apartment.id)}
               />
             ))}
           </div>

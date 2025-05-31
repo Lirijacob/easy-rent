@@ -12,7 +12,6 @@ import SearchResultsPage from "./pages/SearchResultsPage";
 function App() {
   return (
       <Routes>
-        {/* ברירת מחדל – מעבר לדף התחברות */}
         <Route path="/" element={<Navigate to="/login" replace />} />
 
         <Route path="/login" element={<Login />} />

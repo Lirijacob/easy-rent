@@ -16,18 +16,18 @@ export default function SignUp() {
     setError("");
 
     try {
-      // יצירת משתמש באימות של Firebase
+      // Create a user with Firebase authentication
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
 
-      // שמירת מידע בסיסי על המשתמש ב-Firestore
+      // Storing basic user information in Firestore
       await setDoc(doc(db, "users", user.uid), {
         email: user.email,
         createdAt: new Date().toISOString(),
         favorites: []
       });
 
-      // מעבר למסך אחר (למשל עמוד הבית או תוצאות)
+      // After registration - go to the home page
       navigate("/home"); 
     } catch (err) {
       if (err.code === "auth/email-already-in-use") {

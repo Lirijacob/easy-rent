@@ -1,4 +1,3 @@
-import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { signOut } from "firebase/auth";
 import { auth } from "../firebase";
@@ -24,7 +23,7 @@ function Header() {
     <img src={logo} alt="EasyRent" className="h-20" />
   </Link>
 
-      {/* ניווט */}
+      {/* navigate */}
       <nav className="flex items-center gap-8 text-gray-700 font-medium text-base">
         <Link to="/search" className="hover:text-gray-900 flex items-center gap-1">
           <FaSearch className="text-lg" />

@@ -1,54 +1,58 @@
-// ApartmentPage.js
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { doc, getDoc, updateDoc, arrayUnion, arrayRemove } from "firebase/firestore";
 import { db, auth } from "../firebase";
 import { onAuthStateChanged } from "firebase/auth";
-import Header from "../components/Header";
 import NewGalleryPreview from "../components/NewGalleryPreview";
 import ImageModal from "../components/ImageModal";
 import { FaCheckCircle, FaTimesCircle } from "react-icons/fa";
+import { FaHeart, FaRegHeart } from "react-icons/fa";
+import Layout from "../components/Layout";
 
 export default function ApartmentPage() {
-  const { id } = useParams();
+  const { id } = useParams(); // get the apartment ID from the URL
   const [apartment, setApartment] = useState(null);
   const [favorites, setFavorites] = useState([]);
   const [userId, setUserId] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(null);
+  const navigate = useNavigate();
 
+  // Check if a user is authenticated and load their favorites from Firestore
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         setUserId(user.uid);
-        const userDoc = await getDoc(doc(db, "users", user.uid));
+        const userDoc = await getDoc(doc(db, "users", user.uid)); // get the user document
         if (userDoc.exists()) {
-          setFavorites(userDoc.data().favorites || []);
+          setFavorites(userDoc.data().favorites || []); // store their favorites
         }
       }
     });
-    return () => unsubscribe();
+    return () => unsubscribe(); // clean up on unmount
   }, []);
 
+  // Fetch apartment data from Firestore by ID
   useEffect(() => {
     const fetchApartment = async () => {
       try {
         const docRef = doc(db, "apartments", id);
-        const docSnap = await getDoc(docRef);
+        const docSnap = await getDoc(docRef); // get the apartment document
 
         if (docSnap.exists()) {
-          setApartment({ id: docSnap.id, ...docSnap.data() });
+          setApartment({ id: docSnap.id, ...docSnap.data() }); // store it in state
         } else {
-          console.log("הדירה לא נמצאה");
+          console.log("Apartment not found.");
         }
       } catch (error) {
-        console.error("שגיאה בטעינת הדירה:", error);
+        console.error("Error loading apartment:", error);
       }
     };
 
     fetchApartment();
   }, [id]);
 
+  // Add or remove apartment from user's favorites in Firestore
   const toggleFavorite = async () => {
     if (!userId) return;
     const userRef = doc(db, "users", userId);
@@ -56,19 +60,20 @@ export default function ApartmentPage() {
 
     try {
       await updateDoc(userRef, {
-        favorites: isFavorite ? arrayRemove(id) : arrayUnion(id),
+        favorites: isFavorite ? arrayRemove(id) : arrayUnion(id), // update Firestore
       });
       setFavorites((prev) =>
         isFavorite ? prev.filter((pid) => pid !== id) : [...prev, id]
       );
     } catch (error) {
-      console.error("שגיאה בעדכון מועדפים:", error);
+      console.error("Error updating favorites:", error);
     }
   };
 
+  // Render checkmark or X icon for boolean features (e.g. has parking, elevator)
   const renderFeature = (label, value) => {
     if (value === undefined || value === null) {
-      return <div><strong>{label}:</strong> לא צוין</div>;
+      return <div><strong>{label}:</strong> Not specified</div>;
     }
     return (
       <div>
@@ -76,88 +81,111 @@ export default function ApartmentPage() {
         {value ? (
           <FaCheckCircle className="inline text-green-500" />
         ) : (
-          <><FaTimesCircle className="inline text-gray-400" /> לא</>
+          <FaTimesCircle className="inline text-gray-400" />
         )}
       </div>
     );
   };
 
   if (!apartment) {
-    return <div className="text-center p-8">טוען מידע על הדירה...</div>;
+    return <div className="text-center p-8">Loading apartment details...</div>;
   }
 
   return (
-    <div className="bg-white min-h-screen">
-      <Header />
-      <div className="max-w-5xl mx-auto p-6">
-        {/* גלריית תמונות */}
-        <NewGalleryPreview
-          images={apartment.images || []}
-          onImageClick={(index) => {
-            console.log("נבחרה תמונה:", index);
-            setCurrentImageIndex(index);
-            setIsModalOpen(true);
-          }}
-        />
+    <Layout>
+      <div className="bg-white min-h-screen">
 
-        {/* מודאל תמונה */}
-        {isModalOpen && currentImageIndex !== null && (
-          <ImageModal
-            isOpen={isModalOpen}
-            images={apartment.images}
-            currentIndex={currentImageIndex}
-            onClose={() => {
-              setIsModalOpen(false);
-              setCurrentImageIndex(null);
-            }}
-            onNext={() =>
-              setCurrentImageIndex((prev) => (prev + 1) % apartment.images.length)
-            }
-            onPrev={() =>
-              setCurrentImageIndex((prev) => (prev - 1 + apartment.images.length) % apartment.images.length)
-            }
-          />
-        )}
-
-        {/* כותרת */}
-        <h1 className="text-3xl font-bold my-4 text-gray-900">{apartment.title || "דירה ללא שם"}</h1>
-
-        {/* פרטים */}
-        <div className="bg-gray-50 rounded-2xl shadow p-6 grid grid-cols-1 md:grid-cols-2 gap-6 text-gray-800 text-sm">
-          <div><strong>כתובת:</strong> {apartment.address || "לא צוין"}</div>
-          <div><strong>שכונה:</strong> {apartment.neighborhood || "לא צוין"}</div>
-          <div><strong>מחיר:</strong> {apartment.price ? `₪${apartment.price.toLocaleString()}` : "לא צוין"}</div>
-          <div><strong>מספר חדרים:</strong> {apartment.rooms || "לא צוין"}</div>
-          <div><strong>תאריך כניסה:</strong> {apartment.available_from || "לא צוין"}</div>
-          <div><strong>קומה:</strong> {apartment.floor || "לא צוין"}</div>
-          <div><strong>שטח:</strong> {apartment.size || "לא צוין"} מ"ר</div>
-          {renderFeature("מרפסת", apartment.has_balcony)}
-          {renderFeature("ממ\u201dד", apartment.has_safe_room)}
-          {renderFeature("חיות מחמד", apartment.pets_allowed)}
-          {renderFeature("חניה", apartment.has_parking)}
-          {renderFeature("מעלית", apartment.has_elevator)}
-          {renderFeature("מתווך", apartment.has_broker)}
+        {/* Back button */}
+        <div className="flex justify-end max-w-5xl mx-auto px-6 mt-6">
+          <button
+            onClick={() => navigate(-1)}
+            className="text-gray-800 hover:text-blue-600 text-base font-semibold transition"
+          >
+            ← Back
+          </button>
         </div>
 
-        {/* כפתור מעבר לפייסבוק */}
-        {apartment.facebook_url && (
-          <div className="mt-6">
-            <a
-              href={apartment.facebook_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-block bg-blue-600 text-white font-medium px-6 py-2 rounded-lg hover:bg-blue-700 transition"
-            >
-              מעבר לפוסט בפייסבוק
-            </a>
-          </div>
-        )}
+        <div className="max-w-5xl mx-auto p-6">
 
-        {/* תיאור */}
-        <p className="text-gray-600 mt-10 leading-relaxed whitespace-pre-line">
-          {(apartment.description || "אין תיאור זמין").replace(/\\n/g, '\n')}
-        </p>
+          {/* Image gallery preview */}
+          <NewGalleryPreview
+            images={apartment.images || []}
+            onImageClick={(index) => {
+              setCurrentImageIndex(index);
+              setIsModalOpen(true);
+            }}
+          />
+
+          {/* Full screen image modal */}
+          {isModalOpen && currentImageIndex !== null && (
+            <ImageModal
+              isOpen={isModalOpen}
+              images={apartment.images}
+              currentIndex={currentImageIndex}
+              onClose={() => {
+                setIsModalOpen(false);
+                setCurrentImageIndex(null);
+              }}
+              onNext={() =>
+                setCurrentImageIndex((prev) => (prev + 1) % apartment.images.length)
+              }
+              onPrev={() =>
+                setCurrentImageIndex((prev) => (prev - 1 + apartment.images.length) % apartment.images.length)
+              }
+            />
+          )}
+
+          {/* Title and favorite heart */}
+          <div className="flex items-center justify-between my-4">
+            <h1 className="text-3xl font-bold text-gray-900">
+              {apartment.title || "Untitled apartment"}
+            </h1>
+            <button
+              onClick={toggleFavorite}
+              className="text-2xl text-red-500 hover:scale-110 transition"
+              aria-label="Add to favorites"
+            >
+              {favorites.includes(apartment.id) ? <FaHeart /> : <FaRegHeart />}
+            </button>
+          </div>
+
+          {/* Apartment details */}
+          <div className="bg-gray-50 rounded-2xl shadow p-6 grid grid-cols-1 md:grid-cols-2 gap-6 text-gray-800 text-sm">
+            <div><strong>Address:</strong> {apartment.address || "Not specified"}</div>
+            <div><strong>Neighborhood:</strong> {apartment.neighborhood || "Not specified"}</div>
+            <div><strong>Price:</strong> {apartment.price ? `₪${apartment.price.toLocaleString()}` : "Not specified"}</div>
+            <div><strong>Rooms:</strong> {apartment.rooms || "Not specified"}</div>
+            <div><strong>Entry date:</strong> {apartment.available_from === "2025-01-01" ? "Immediate" : apartment.available_from || "Not specified"}</div>
+            <div><strong>Floor:</strong> {apartment.floor === 0 ? "Ground" : apartment.floor || "Not specified"}</div>
+            <div><strong>Size:</strong> {apartment.size ? `${apartment.size} sqm` : "Not specified"}</div>
+            {renderFeature("Balcony", apartment.has_balcony)}
+            {renderFeature("Safe Room", apartment.has_safe_room)}
+            {renderFeature("Pets Allowed", apartment.pets_allowed)}
+            {renderFeature("Parking", apartment.has_parking)}
+            {renderFeature("Elevator", apartment.has_elevator)}
+            {renderFeature("Broker", apartment.has_broker)}
+          </div>
+
+          {/* Facebook post link */}
+          {apartment.facebook_url && (
+            <div className="mt-6">
+              <a
+                href={apartment.facebook_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block bg-blue-600 text-white font-medium px-6 py-2 rounded-lg hover:bg-blue-700 transition"
+              >
+                View Facebook Post
+              </a>
+            </div>
+          )}
+
+          {/* Full post description */}
+          <p className="text-gray-600 mt-10 leading-relaxed whitespace-pre-line">
+            {(apartment.description || "No description available").replace(/\\n/g, '\n')}
+          </p>
+        </div>
       </div>
-    </div>
+    </Layout>
   );
 }

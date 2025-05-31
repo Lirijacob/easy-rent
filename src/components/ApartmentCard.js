@@ -1,4 +1,3 @@
-import React from "react";
 import { useNavigate } from "react-router-dom";
 import { FaHeart, FaRegHeart } from "react-icons/fa";
 import ImageCarousel from "./ImageCarousel";
@@ -11,7 +10,7 @@ export default function ApartmentCard({ apartment, isFavorite, onToggleFavorite 
       onClick={() => navigate(`/apartment/${apartment.id}`)}
       className="bg-white rounded-2xl shadow-soft overflow-hidden relative flex flex-col cursor-pointer transform transition-transform transition-shadow duration-300 hover:scale-105 hover:shadow-lg"
     >
-      {/* כפתור לב */}
+      {/* favorite sign */}
       <div
         onClick={(e) => {
           e.stopPropagation();
@@ -22,10 +21,10 @@ export default function ApartmentCard({ apartment, isFavorite, onToggleFavorite 
         {isFavorite ? <FaHeart /> : <FaRegHeart />}
       </div>
 
-      {/* קרוסלת תמונות */}
+      {/* Image Carousel */}
       <ImageCarousel imageUrls={apartment.images || []} />
 
-      {/* פרטים */}
+      {/* Apartments Details */}
       <div className="p-5 flex flex-col flex-grow">
         <h4 className="text-lg font-bold mb-1">{apartment.title || "ללא כותרת"}</h4>
 

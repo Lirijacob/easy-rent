@@ -7,6 +7,7 @@ import { FaSearch } from "react-icons/fa";
 import Layout from "../components/Layout";
 import ApartmentCard from "../components/ApartmentCard";
 
+//Default apartment picture
 const placeholderImages = [
   "https://images.unsplash.com/photo-1570129477492-45c003edd2be?auto=format&fit=crop&w=800&q=80",
 ];
@@ -34,7 +35,7 @@ const Home = () => {
   useEffect(() => {
   const fetchApartments = async () => {
     try {
-      const snapshot = await getDocs(collection(db, "apartments"));  // ← שם הקולקציה החדש
+      const snapshot = await getDocs(collection(db, "apartments"));  
       const data = snapshot.docs.map((doc) => {
         const apt = doc.data();
         return {
@@ -77,7 +78,7 @@ const Home = () => {
   return (
     <Layout>
       <div className="min-h-screen bg-white font-sans text-brandText">
-        {/* חיפוש */}
+        {/* Search */}
         <section className="max-w-4xl mx-auto text-center my-16">
           <h2 className="text-5xl font-bold text-gray-900 mb-4 leading-tight">
             מצאו דירה להשכרה בתל אביב
@@ -96,7 +97,7 @@ const Home = () => {
           </div>
         </section>
 
-        {/* דירות חדשות */}
+        {/* The apartments */}
         <section className="max-w-7xl mx-auto py-14 px-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
             {apartments.map((apartment) => (

@@ -18,14 +18,14 @@ export default function ImageCarousel({ imageUrls = [], isFavorite = false, onTo
 
   return (
     <div className={`relative w-full ${height} rounded-2xl overflow-hidden`}>
-      {/* תמונה נוכחית */}
+      {/* current picture */}
       <img
         src={imageUrls[currentIndex] || placeholderImage}
         alt={`תמונה ${currentIndex + 1}`}
         className="w-full h-full object-cover"
       />
 
-      {/* כפתור לב */}
+      {/* favorite sign */}
       {onToggleFavorite && (
         <div
           className="absolute top-3 left-3 z-10 bg-white bg-opacity-70 rounded-full p-2 cursor-pointer"
@@ -35,7 +35,7 @@ export default function ImageCarousel({ imageUrls = [], isFavorite = false, onTo
         </div>
       )}
 
-      {/* חצים */}
+      {/* Arrows */}
       {totalImages > 1 && (
         <>
           <button
@@ -53,7 +53,7 @@ export default function ImageCarousel({ imageUrls = [], isFavorite = false, onTo
         </>
       )}
 
-      {/* מונה תמונות */}
+      {/* picturea counter */}
       {totalImages > 1 && (
         <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2 bg-black bg-opacity-50 text-white text-xs px-3 py-1 rounded-full">
           {currentIndex + 1}/{totalImages}

@@ -1,4 +1,3 @@
-import React from "react";
 
 export default function NewGalleryPreview({ images, onImageClick }) {
   const displayImages = images.slice(0, 5);
@@ -14,7 +13,7 @@ export default function NewGalleryPreview({ images, onImageClick }) {
 
   return (
     <div className="grid grid-cols-4 grid-rows-2 gap-2 rounded-xl overflow-hidden h-[400px]">
-      {/* תמונה גדולה בצד שמאל */}
+      {/* Big picture */}
       <div className="row-span-2 col-span-2">
         <img
           src={images[0]}
@@ -24,7 +23,7 @@ export default function NewGalleryPreview({ images, onImageClick }) {
         />
       </div>
 
-      {/* 4 תמונות קטנות בצד ימין */}
+      {/* Little pictures */}
       {displayImages.slice(1).map((img, index) => (
         <div key={index + 1} className="relative">
           <img
@@ -34,7 +33,7 @@ export default function NewGalleryPreview({ images, onImageClick }) {
             className="w-full h-full object-cover cursor-pointer rounded-xl"
           />
 
-          {/* תצוגת +N */}
+          {/* click for more pictures */}
           {index === 3 && extraCount > 0 && (
             <div
               onClick={() => handleClick(index + 1)}

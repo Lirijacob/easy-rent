@@ -21,13 +21,13 @@ export default function Login() {
       navigate("/home"); 
     } catch (err) {
       if (err.code === "auth/user-not-found") {
-        setError("המשתמש לא נמצא. בדקי את האימייל.");
+        setError("המשתמש לא קיים במערכת");
       } else if (err.code === "auth/wrong-password") {
-        setError("סיסמה שגויה.");
+        setError("סיסמה שגויה");
       } else if (err.code === "auth/invalid-email") {
-        setError("אימייל לא תקין.");
+        setError("כתובת אימייל לא תקינה");
       } else {
-        setError("שגיאה כללית בעת ההתחברות. נסי שוב.");
+        setError("שגיאה כללית בעת ההתחברות. נסה/י שוב.");
       }
     }
   };
