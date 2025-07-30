@@ -3,7 +3,7 @@ import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
-    apiKey: "AIzaSyA_fIJ-2DTabhevleWYI5UDhr_DdLhuP8c",
+    apiKey: "AIzaSyAGdXN_g56lF5Dld4CLSvVVvHfoL-w86bY",
     authDomain: "easyrent-1325a.firebaseapp.com",
     projectId: "easyrent-1325a",
     storageBucket: "easyrent-1325a.firebasestorage.app",
